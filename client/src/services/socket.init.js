@@ -1,6 +1,5 @@
 import io from "socket.io-client";
-
-const SOCKET_SERVER_URL = "http://localhost:5000";
+import { SOCKET_SERVER_URL } from "../common/config";
 
 export class Socket {
 

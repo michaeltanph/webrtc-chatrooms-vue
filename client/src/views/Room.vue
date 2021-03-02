@@ -126,7 +126,7 @@ export default {
     },
 
     initPeer(){
-      this.myPeer = new PeerService;
+      this.myPeer = new PeerService({peerId: this.myPeerId});
     },
 
     setupMyMedia(){
