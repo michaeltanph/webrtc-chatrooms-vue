@@ -177,21 +177,9 @@ export default {
     },
     
     listenSocket(){
-      this.socket.on("assign-room", (status, roomId) => {
-        this.room = roomId ? roomId : this.room;
-        if(!status){
-          this.$router.push(`/room/${this.room}`)
-        }
-      })
-      this.socket.on('user-disconnected', userId => {
-        if (this.peerList[userId]){
-          this.removePeer( userId );
-          this.removeVideo( userId );      
-        }
-      })
-      this.socket.on('user-connected', userId => { 
-        this.connectToNewUser(userId, this.myVideo.stream)
-      }) 
+      this.listenRoomAssignment();
+      this.listenDisconnectedUser();
+      this.listenConnectedUser();
       this.listenToggleCamera();
       this.listenToggleMicrophone();
     },
@@ -284,30 +272,50 @@ export default {
     },
 
     toggleAudio(){
-      this.myVideo.stream.getAudioTracks()[0].enabled = !this.allowVideo;
+      this.myVideo.stream.getAudioTracks()[0].enabled = !this.allowAudio;
       this.socket.emit("set-self-audio", !this.allowAudio, this.myPeerId)
       this.allowAudio = !this.allowAudio;
     },
 
+    listenRoomAssignment(){
+      this.socket.on("assign-room", (status, roomId) => {
+        this.room = roomId ? roomId : this.room;
+        if(!status){
+          this.$router.push(`/room/${this.room}`)
+        }
+      })
+    },
+    listenDisconnectedUser(){
+      this.socket.on('user-disconnected', userId => {
+        if (this.peerList[userId]){
+          this.removePeer( userId );
+          this.removeVideo( userId );      
+        }
+      })
+    },
+    listenConnectedUser(){
+      this.socket.on('user-connected', userId => { 
+        this.connectToNewUser(userId, this.myVideo.stream)
+      })
+    },
     listenToggleCamera(){
       this.socket.on("somebody-toggle-camera", ( {isUsingCamera, userId} ) => {
         if (this.peerList[userId]){
           this.peerList[userId].video.isStreamingVideo = isUsingCamera;
         }
         if (this.myPeerId == userId){ console.log(true)
-          this.allowAudio = isUsingCamera;
+          this.allowVideo = isUsingCamera;
           this.myVideo.isStreamingVideo = isUsingCamera;
         }
       })
     },
-
     listenToggleMicrophone(){
       this.socket.on("somebody-toggle-microphone", ( {isUsingMicrophone, userId} ) => {
         if (this.peerList[userId]){
           this.peerList[userId].video.isStreamingAudio = isUsingMicrophone;
         }
         if (this.myPeerId == userId){ console.log(true)
-          this.allowVideo = isUsingMicrophone;
+          this.allowAudio = isUsingMicrophone;
           this.myVideo.isStreamingAudio = isUsingMicrophone;
         }
       })

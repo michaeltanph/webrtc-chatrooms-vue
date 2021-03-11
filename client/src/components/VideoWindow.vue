@@ -3,28 +3,26 @@
     <video ref="video"
         class="rounded-xl"
         :style="{width: width, height: height}"
-        :muted="isStreamingAudio"
+        :muted="isMuted"
         :srcObject="stream">
     </video>
     
     <div class="flex" v-if="!self">
       <h5 v-if="id" class="text-xs username flex-none flex items-center justify-center h-9 rounded px-3 text-gray-200 border bg-gray-500 border-gray-500">
-        {{id}}
+        {{id}} {{isMuted}}
       </h5>
 
-      <!-- <button
-        @click="allowAudio = !allowAudio"
-        class="btn-control flex-none flex items-center justify-center w-9 h-9 rounded text-gray-200 border bg-gray-500 border-gray-500"
-        v-if="self">
-        <svg v-if="allowAudio" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-          <path v-if="!allowAudio" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+      <button
+        @click="toggleListenVoice"
+        class="btn-control flex-none flex items-center justify-center w-9 h-9 rounded text-gray-200 border bg-gray-800 border-gray-800"
+        v-if="!self">
+        <svg v-if="listenVoice" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
         </svg>
-        <svg v-else width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+        <svg v-else width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />  <line x1="23" y1="9" x2="17" y2="15" />  <line x1="17" y1="9" x2="23" y2="15" />
         </svg>
-      </button> -->
+      </button>
 
       <h5
         class="btn-video flex-none flex items-center justify-center w-9 h-9 rounded-r text-gray-200 border bg-transparent border-transparent"
@@ -79,7 +77,7 @@ export default {
       type: String,
     },
     userName: {
-      default: 'username-0101',
+      default: '',
       type: String,
     },
     isStreamingVideo: {
@@ -94,33 +92,32 @@ export default {
   },
   computed: {
     width: function(){
-      if(!this.self || this.positive)
+      if(!this.self)
         return '100%';
       else
-        return '240px';
+        //return '240px';
+        return '100%';
     },
     height: function(){
-      if(!this.self || this.positive)
+      if(!this.self)
         return '300px';
       else
-        return '200px';
+        //return '200px';
+        return '300px';
     },
-    muted: function(){
-      return !this.allowAudio
+    isMuted: function(){
+      return !this.isStreamingAudio || !this.listenVoice;
+      //return !this.isStreamingAudio;
     }
   },
   data (){
     return {
       show: false,
-      stream2: null,
-      //allowAudio: false,
-      //allowVideo: true,
-      positive: true,
+      listenVoice: true,
     }
   },
   watch:{
     stream: function(data){
-      //console.log(data, 'stream update')
       if(data){
         this.addVideoStream(this.stream);
         this.allowVideo = true;
@@ -129,20 +126,11 @@ export default {
         this.allowVideo = false;
       }
     },
-    /* isStreaming: function(data){
-      if(data){
-        this.allowVideo = true;
-      }
-      else{
-        this.allowVideo = false;
-      }
-    } */
   },
   created(){
     
   },
   mounted(){
-    //this.allowAudio = !this.self ? true : false;
     setTimeout(() => {
       this.addVideoStream(this.stream);
     }, 2000);
@@ -152,12 +140,14 @@ export default {
   },
   methods:{
     addVideoStream(stream) {
-        //console.log({stream})
-        this.$refs.video.srcObject = stream;
-        this.$refs.video.addEventListener('loadedmetadata', () => {
-            this.$refs.video.play()
-        });
+      this.$refs.video.srcObject = stream;
+      this.$refs.video.addEventListener('loadedmetadata', () => {
+        this.$refs.video.play()
+      });
     },
+    toggleListenVoice(){
+      this.listenVoice = !this.listenVoice;
+    }
   }
 }
 </script>
@@ -166,12 +156,8 @@ export default {
 <style scoped>
   video {
     display: block;
-    /* width: 400px;
-    height: 320px; */
-    /* margin: 15px; */
     object-fit: cover;
     background: black;
-    /* border: 10px solid white; */
     transform: scaleX(-1);
   }
   .wrapper{
