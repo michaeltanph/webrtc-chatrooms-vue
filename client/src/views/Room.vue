@@ -18,8 +18,8 @@
           </a>
         </div>
       </div>
+    </div>  
 
-  </div>  
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1">
       <div class="">
         <video-window
@@ -41,15 +41,14 @@
           :isStreamingAudio="peerList[vid].video.isStreamingAudio"
           :isStreamingVideo="peerList[vid].video.isStreamingVideo"
         />
-        isAudio: {{peerList[vid].video.isStreamingAudio}}
       </div>
     </div>
 
     <!-- TOOLBAR -->
-    <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0">
-      <div class=" flex justify-center items-center bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
+    <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0 bg-gray-100 text-gray-700 dark:bg-gray-900">
+      <div class="grid grid-cols-4 md:grid-cols-12 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
         
-        <button @click="toggleAudio" :disabled="isDisconnected" type="button" class="mx-4 py-4 px-4 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 mx-auto">
+        <button @click="toggleAudio" :disabled="isDisconnected" type="button" class="md:col-start-5 grid-start-2 mx-auto py-4 px-4 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
           <svg v-if="allowAudio" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"> 
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /> 
             <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
@@ -59,11 +58,11 @@
           </svg>
         </button>
         
-        <button :disabled="isDisconnected" @click="endCall()" type="button" class="mx-4 py-4 px-6 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 mx-auto">
+        <button :disabled="isDisconnected" @click="endCall()" type="button" class="col-span-2 w-full mx-auto py-4 px-6 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">
           End Call
         </button>
         
-        <button @click="toggleVideo" :disabled="isDisconnected" type="button" class="mx-4 py-4 px-4 bg-transparentt-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 mx-auto">
+        <button @click="toggleVideo" :disabled="isDisconnected" type="button" class="mx-auto py-4 px-4 bg-transparentt-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
           <svg v-if="allowVideo" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
             <polygon points="23 7 16 12 23 17 23 7" />  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
@@ -83,7 +82,7 @@ import { PeerService } from "@/services/peer.init.js";
 
 import videoWindow from "@/components/VideoWindow.vue";
 
-/* const constraints = {
+const constraints = {
   audio: {
     channelCount: 1,
     sampleRate: 16000,
@@ -92,7 +91,7 @@ import videoWindow from "@/components/VideoWindow.vue";
     echoCancellation: true,
     noiseSuppression: true,
   }
-} */
+}
 
 export default {
   name: 'Room',
@@ -165,15 +164,15 @@ export default {
         video: this.allowVideo,
         audio: this.allowAudio
       }).then(stream => {
-        //const audioTracks = stream.getAudioTracks();
-        //const audioTrack = audioTracks[0] ? audioTracks[0] : null;
-        //if(audioTrack){
-          /* audioTrack.applyConstraints (constraints)
-          .then(()=> { */
+        const audioTracks = stream.getAudioTracks();
+        const audioTrack = audioTracks[0] ? audioTracks[0] : null;
+        if(audioTrack){
+          audioTrack.applyConstraints (constraints)
+          .then(()=> {
             this.myVideo = {stream: stream, isStreamingAudio: true, isStreamingVideo: true};
             this.isReadyMyVideo = true;
-          //})
-        //}
+          })
+        }
       })
     },
     
