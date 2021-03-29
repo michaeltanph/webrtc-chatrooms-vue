@@ -4,6 +4,7 @@
     <div class="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-6">
     <section id="content-wrapper" class="min-w-0 w-full flex-auto lg:static lg:max-h-full lg:overflow-visible">
       <div class="px-4 sm:px-6 xl:px-8 pt-10">
+        <h1 class="text-5xl leading-none font-extrabold text-gray-900 tracking-tight mb-4">Hi, {{username}}</h1>
         <h1 class="text-5xl leading-none font-extrabold text-gray-900 tracking-tight mb-4">Welcome to the lobby.</h1>
         <p class="text-2xl tracking-tight mb-4">Join among the chat rooms or create your own.</p>
       </div>
@@ -102,13 +103,16 @@
 export default {
   name: 'Lobby',
   components: {
-    
   },
   data(){
     return{
       rooms: [{name: 'Kapayas', url: '/room/', category: 'General'}],
       showModal: false,
+      username: this.$store.state.user.username,
     }
+  },
+  mounted(){
+    
   },
   methods: {
     getRooms(){

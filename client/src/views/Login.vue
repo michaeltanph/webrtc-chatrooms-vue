@@ -14,10 +14,10 @@
             </div>
             <div class="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
 
-              <form class="mt-6" method="POST">
+              <form @submit.prevent="login" class="mt-6">
                 <div class="sm:flex">
-                  <input type="text" required="" placeholder="BangusTheBoneless" class="block sm:max-w-xs w-full px-4 py-3 text-base appearance-none border border-gray-300 shadow-none bg-white rounded-md placeholder-gray-300 focus:outline-none focus:shadow-outline-blue focus:border-blue-300">
-                  <button class="mt-4 relative sm:mt-0 sm:h-auto sm:ml-4 block w-full sm:w-auto border border-transparent px-6 py-3 text-base font-semibold leading-snug bg-gray-900 text-white rounded-md shadow-md hover:bg-gray-800 focus:outline-none focus:bg-gray-800 transition ease-in-out duration-150 hover:bg-gray-600" :class="{ 'opacity-50 pointer-events-none': submitting, 'hover:bg-gray-600': !submitting }" :disabled="submitting">
+                  <input v-model="username" type="text" required="" placeholder="BangusTheBoneless" class="block sm:max-w-xs w-full px-4 py-3 text-base appearance-none border border-gray-300 shadow-none bg-white rounded-md placeholder-gray-300 focus:outline-none focus:shadow-outline-blue focus:border-blue-300">
+                  <button class="mt-4 relative sm:mt-0 sm:h-auto sm:ml-4 block w-full sm:w-auto border border-transparent px-6 py-3 text-base font-semibold leading-snug bg-gray-900 text-white rounded-md shadow-md hover:bg-gray-800 focus:outline-none focus:bg-gray-800 transition ease-in-out duration-150 hover:bg-gray-600" :class="{ 'opacity-50 pointer-events-none': isSubmitting, 'hover:bg-gray-600': !isSubmitting }" :disabled="isSubmitting">
                     <span>Continue</span>
                     <span style="" x-show="true" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0" :class="{ 'opacity-0': !isSubmitting }">
                       <svg class="h-8 w-8 spin" viewBox="0 0 24 24">
@@ -49,17 +49,18 @@ export default {
     return{
       isError: false,
       errorMessage: '',
-      username: '',
+      username: 'bangus',
       isSubmitting: false,
     }
   },
+  mounted(){
+    console.log(this.$store)
+  },
   methods: {
     login(){
-      /* this.$store
-        .dispatch('login')
-        .then(() => this.$router.push({ name: "lobby" })); */
-
-        this.$router.push({ name: "Lobby" })
+      this.$store
+        .dispatch('logIn', this.username)
+        .then(() => this.$router.push({ path: "/lobby" }));
     }
   }
 

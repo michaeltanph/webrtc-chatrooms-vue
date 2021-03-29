@@ -10,10 +10,7 @@ const routes = [
   {
     path: '/room',
     name: 'Room',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Room.vue'),
+    component: () => import('../views/Room.vue'),
     children: [
       { path: '', component: () => import('../views/Room.vue') },
       { path: ':id', component: () => import('../views/Room.vue') },
@@ -22,10 +19,7 @@ const routes = [
   {
     path: '/lobby',
     name: 'Lobby',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Lobby.vue')
+    component: () => import('../views/Lobby.vue')
   }
 ]
 
@@ -33,5 +27,14 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+// router.beforeEach((to, from, next) => {
+//   if (to.name !== 'Login' && !isAuthenticated) {
+//     next({ name: 'Login' })
+//   }
+//   else {
+//     next()
+//   }
+// })
 
 export default router
