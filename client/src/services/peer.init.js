@@ -7,10 +7,11 @@ export class PeerService {
         return this.init(data)
     }
 
-    init ({peerId, serialization}){
+    init ({peerId, serialization, username}){
         this.peer = new Peer(peerId, {
             host: '/', port: 3001,
             serialization: serialization,
+            metadata: { username: username },
             config: {
                 STUN_SERVERS
             }

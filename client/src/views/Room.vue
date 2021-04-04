@@ -1,6 +1,6 @@
 <template>
   <div class="p-8">
-    <h1 class="text-base font-semibold tracking-wide uppercase mb-8">{{roomName}}</h1>
+    <h1 class="text-base font-semibold uppercase mb-8">{{roomTitle}}</h1>
     
     <div v-if="isDisconnected" class="rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
       <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -18,7 +18,7 @@
           </a>
         </div>
       </div>
-    </div>  
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1">
       <div class="">
@@ -29,6 +29,7 @@
           :isStreamingAudio="myVideo.isStreamingAudio" 
           :isStreamingVideo="myVideo.isStreamingVideo"
         />
+        <h6>{{myUsername}}</h6>
       </div>
     
       <div
@@ -41,6 +42,7 @@
           :isStreamingAudio="peerList[vid].video.isStreamingAudio"
           :isStreamingVideo="peerList[vid].video.isStreamingVideo"
         />
+        <h6>{{peerList[vid].video.username}}</h6>
       </div>
     </div>
 
@@ -87,7 +89,7 @@ const constraints = {
     channelCount: 1,
     sampleRate: 16000,
     sampleSize: 16,
-    volume: 1,
+    volume: 0,
     echoCancellation: true,
     noiseSuppression: true,
   }
@@ -102,6 +104,7 @@ export default {
     return{
       socket: new Socket,
       room: this.$route.params.id,
+      roomTitle: this.$store.state.room.roomTitle,
       myVideo: {stream: null},
       myPeer: null,
       myPeerId: undefined,
@@ -109,11 +112,12 @@ export default {
       isReadyMyVideo: false,
       isReadyMyPeer: false,
       allowVideo: true,
-      allowAudio: false,
+      allowAudio: true,
       peerList: {},
       videoList: [],
-      serialization: 'binary',
+      serialization: 'json',
       isDisconnected: false,
+      myUsername: this.$store.state.user.username,
     }
   },
   props: {
@@ -122,6 +126,17 @@ export default {
       type: String,
     },
   },
+  // async beforeRouteEnter(to, from, next) {
+  //   if(this.$store.state.room.roomTitle){
+  //     return next()
+  //   }
+  //   else if(this.$store.state.room.roomTitle == ''){
+  //     this.$router.push('/lobby')
+  //   }
+  //   else{
+  //     this.$router.push('/lobby')
+  //   }
+  // },
   watch: {
     isReadyMyVideo: function(bool){
       if(bool){
@@ -132,7 +147,9 @@ export default {
     isReadyToJoin: function(bool){
       if(bool){
         setTimeout(() => {
-          this.socket.emit('join-room', this.room, this.myPeerId)
+          let roomPayload = {name: this.room, title: this.roomTitle};
+          let userPayload = {id: this.myPeerId, username: this.$store.state.user.username}
+          this.socket.emit('join-room', roomPayload, userPayload)
         }, 1000);
       }
     },
@@ -142,15 +159,24 @@ export default {
       return (this.isReadyMyVideo && this.isReadyMyPeer)
     },
     chatRoomName: function(){
-      if(this.roomName){
-        return this.roomName
+      if(this.room){
+        return this.room
       }
       else{
-        return this.room;
+        return this.room
+      }
+    },
+    chatRoomTitle: function(){
+      if(this.roomTitle){
+        return this.roomTitle
+      }
+      else{
+        return this.roomTitle
       }
     },
   },
   created(){
+    this.checkRoomTitleFromStore();
     this.listenSocket();
     this.checkRoom();
     this.assignSerialization();
@@ -169,7 +195,7 @@ export default {
     },
 
     initPeer(){
-      this.myPeer = new PeerService({peerId: this.myPeerId, serialization: this.serialization});
+      this.myPeer = new PeerService({peerId: this.myPeerId, serialization: this.serialization, username: this.myUsername});
     },
 
     setupUserMedia(){
@@ -198,37 +224,39 @@ export default {
     },
 
     listenOnEstablishedPeer(){
-      this.myPeer.on('open', id => {
-        this.isReadyMyPeer = true;
+      this.myPeer.on('open', id => { //console.log('peer open', this.myPeer)
         this.myPeerId = id;
+        this.isReadyMyPeer = true;
       })
     },
 
     listenOnCall(){
       let userId;
-      this.myPeer.on('call', call => {
+      let username;
+      this.myPeer.on('call', call => { //console.log('Calling', call)
         userId                = call.peer;
+        username              = "" //to be fixed
         this.peerList[userId] = {userId: userId, video: {}, call: call};
-        this.answerCall(userId);
+        this.answerCall({userId, username});
       })
     },
 
-    answerCall(userId){
+    answerCall({userId, username}){ //console.log("Answering call . . .", userId)
       if(this.peerList[userId].call){
         this.peerList[userId].call.answer(this.myVideo.stream);
         this.peerList[userId].call.on('stream', userVideoStream => {
-          this.streamVideo( {userId, userVideoStream} )
+          this.streamVideo( {userId, username, userVideoStream} )
         })
       }
     },
 
-    connectToNewUser(userId, stream) {
+    connectToNewUser({userId, username}, stream) { console.log("Attempting to call . . .", userId)
       const call                  = this.myPeer.call(userId, stream); 
-      this.peerList[userId]       = {userId: userId, video: {}};
+      this.peerList[userId]       = {userId: userId, username: username, video: {}};
       this.peerList[userId].call  = call;
 
       if(call){ 
-        call.on('stream', userVideoStream => { 
+        call.on('stream', userVideoStream => {  console.log("Call then stream now . . .", userId)
             this.streamVideo( {userId, userVideoStream} )
         })
 
@@ -249,9 +277,10 @@ export default {
       this.socket.emit('check-room', this.room);
     },
     
-    streamVideo( {userId, userVideoStream} ){
-      let video = {isStreamingAudio: true, isStreamingVideo: true, stream: userVideoStream, userId: userId};
+    streamVideo( {userId, username, userVideoStream} ){
+      let video = {isStreamingAudio: true, isStreamingVideo: true, stream: userVideoStream, userId: userId, username: username};
       this.peerList[userId].video = video;  
+      console.log(this.isUserIdUnique(userId))
       if(this.isUserIdUnique(userId)){
         this.appendVideoListItem( userId );
       }
@@ -291,10 +320,12 @@ export default {
     },
 
     listenRoomAssignment(){
-      this.socket.on("assign-room", (status, roomId) => {
-        this.room = roomId ? roomId : this.room;
+      this.socket.on("assign-room", (status, roomName) => {
+        this.room = roomName ? roomName : this.room;
         if(!status){
           this.$router.push(`/room/${this.room}`)
+          let roomPayload = { name: this.room, title: this.roomTitle };
+          this.socket.emit("set-room-details", roomPayload)
         }
       })
     },
@@ -307,8 +338,8 @@ export default {
       })
     },
     listenConnectedUser(){
-      this.socket.on('user-connected', userId => { 
-        this.connectToNewUser(userId, this.myVideo.stream)
+      this.socket.on('user-connected', (userId, username) => { 
+        this.connectToNewUser({userId, username}, this.myVideo.stream)
       })
     },
     listenToggleCamera(){
@@ -316,7 +347,7 @@ export default {
         if (this.peerList[userId]){
           this.peerList[userId].video.isStreamingVideo = isUsingCamera;
         }
-        if (this.myPeerId == userId){ console.log(true)
+        if (this.myPeerId == userId){ //console.log(true)
           this.allowVideo = isUsingCamera;
           this.myVideo.isStreamingVideo = isUsingCamera;
         }
@@ -358,6 +389,19 @@ export default {
         track.stop();
       });
       videoElem.srcObject = null;
+    },
+
+    checkRoomTitleFromStore(){
+      if(this.$store.state.room.roomTitle){
+        this.roomTitle = this.$store.state.room.roomTitle;
+      }
+      else if(this.$store.state.room.roomTitle == ''){
+        this.$router.push('/lobby')
+      }
+      else{
+        this.$router.push('/lobby')
+      }
+
     }
 
   }

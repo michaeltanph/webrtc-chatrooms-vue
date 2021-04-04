@@ -13,12 +13,17 @@
     <section class="px-4 sm:px-6 lg:px-4 xl:px-6 pt-4 pb-4 sm:pb-6 lg:pb-4 xl:pb-6 space-y-4">
       <header class="flex items-center justify-between">
         <h2 class="text-lg leading-6 font-medium text-black">Chat Rooms</h2>
-        <button @click="createRoom()" class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2">
-          <svg class="group-hover:text-light-blue-600 text-light-blue-500 mr-2" width="12" height="20" fill="currentColor">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
-          </svg>
-          Create
-        </button>
+        <div class="flex items-end">
+          <button @click="createRoom()" class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2">
+            <svg class="group-hover:text-light-blue-600 text-light-blue-500 mr-2" width="12" height="20" fill="currentColor">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+            </svg>
+            Create
+          </button>
+          <button @click="getRooms()" class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2 ml-2">
+            R
+          </button>
+        </div>
       </header>
     
       <form class="relative">
@@ -30,18 +35,18 @@
       </form>
 
       <ul class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-        <li v-for="room in rooms" :key="room.url">
-          <a :href="`/room/${room.id}`" class="hover:bg-blue-500 hover:border-transparent hover:shadow-lg group block rounded-lg p-4 border border-gray-200">
+        <li v-for="room in rooms" :key="room.name">
+          <a href="#" @click="goTo(room)" class="hover:bg-blue-500 hover:border-transparent hover:shadow-lg group block rounded-lg p-4 border border-gray-200">
             <dl class="grid sm:block lg:grid xl:block grid-cols-2 grid-rows-2 items-center">
               <div>
-                <dt class="sr-only">Name</dt>
+                <dt class="sr-only">Title</dt>
                 <dd class="group-hover:text-white leading-6 font-medium text-black">
-                  {{room.name}}
+                  {{room.title}}
                 </dd>
               </div>
               <div>
                 <dt class="sr-only">Category</dt>
-                <dd class="group-hover:text-blue-200 text-sm font-medium sm:mb-4 lg:mb-0 xl:mb-4">
+                <dd class="group-hover:text-blue-200 text-sm text-gray-500 font-medium sm:mb-4 lg:mb-0 xl:mb-4">
                   {{room.category}}
                 </dd>
               </div>
@@ -70,7 +75,7 @@
     <div class="bg-white rounded shadow-lg w-1/3">
       <!-- modal header -->
       <div class="border-b px-4 py-2 flex justify-between items-center">
-        <h3 class="font-semibold text-lg">Room Creation Form</h3>
+        <h3 class="font-semibold text-lg">Create Room</h3>
         <button @click="toggleModal" class="text-black close-modal">
           <svg class=""  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="18" y1="6" x2="6" y2="18" />  <line x1="6" y1="6" x2="18" y2="18" /></svg>
         </button>
@@ -78,8 +83,12 @@
       <!-- modal body -->
       <div class="p-3">
         <form class="relative flex flex-items items-center gap-4">
-          <input class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 px-2"
-            type="text" aria-label="Room name" placeholder="Name" />
+          <input
+            required
+            v-model="roomTitle" class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 px-2"
+            type="text"
+            aria-label="Room name"
+            placeholder="Name" />
           <!-- <input class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 px-2"
             type="text" aria-label="Room category" placeholder="Category" /> -->
         </form>
@@ -88,8 +97,8 @@
         <button @click="toggleModal" class="hover:bg-gray-200 hover:text-gray-800 group flex items-center rounded-md bg-gray-100 text-gray-600 text-sm font-medium px-4 py-2">
           Cancel
         </button>
-        <button class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2">
-          Proceed
+        <button @click="addRoom" class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2">
+          Confirm
         </button>
       </div>
     </div>
@@ -99,30 +108,77 @@
 </template>
 
 <script>
-
+import http from "@/services/api.service.js";
+//import { Socket } from "@/services/socket.init.js";
 export default {
   name: 'Lobby',
   components: {
   },
   data(){
     return{
-      rooms: [{name: 'Kapayas', url: '/room/', category: 'General'}],
+      //socket: new Socket,
+      loading: false,
+      rooms: [],
       showModal: false,
       username: this.$store.state.user.username,
+      roomTitle: ''
     }
   },
   mounted(){
-    
+    this.getRooms();
   },
   methods: {
     getRooms(){
-      this.rooms = [ {name: 'a' }, {name: 'b' }]
+      this.loading = true;
+      http({
+        url: 'rooms',
+        method: 'GET',
+        params: {},
+      }).then(response => {
+        this.rooms = this.parseResultsData(response);
+        //this.rooms = response.data;
+        console.log(this.rooms)
+      }).catch(error => {
+        throw new Error(error);
+      }).finally(()=>{
+        this.loading = false;
+      })
     },
+
+    async goTo(room){
+      await this.$store.dispatch("joinRoom", { name: room.name, title: room.title })
+      this.$router.push(room.url);
+    },
+
+    addRoom(){
+      this.$store.dispatch('createRoom', this.roomTitle);
+    },
+
     createRoom(){
       this.toggleModal();
     },
+
     toggleModal(){
       this.showModal = !this.showModal;
+    },
+
+    parseResultsData(response){
+      let data = response.data;
+      let roomNames =  Object.keys(data);
+      let roomList = [];
+     
+      roomNames.forEach(roomName => {
+        if(data[roomName].organic){
+          roomList.push({
+            name: roomName,
+            title: data[roomName].title,
+            url: `/room/${roomName}`,
+            category: 'General',
+          })
+        }
+      });
+
+      return roomList;
     }
   }
 }

@@ -108,6 +108,7 @@ export default {
     isMuted: function(){
       return !this.isStreamingAudio || !this.listenVoice;
       //return !this.isStreamingAudio;
+      //return true
     }
   },
   data (){
