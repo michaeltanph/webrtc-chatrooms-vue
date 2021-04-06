@@ -1,6 +1,16 @@
 <template>
   <div class="p-8">
-    <h1 class="text-base font-semibold uppercase mb-8">{{!isDisconnected ? roomTitle : ''}}</h1>
+    <div class="mb-8">
+      <button @click="$router.push('/lobby')" class="mr-4 inline-block align-middle lg:col-start-5 mx-auto py-3 px-3 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+      </button>
+      <span class="inline-block align-middle text-base text-2xl font-bold capitalize mr-4">{{!isDisconnected ? roomTitle : ''}}</span>
+      <span class="inline-block align-middle text-xs font-semibold inline-block py-1 px-2 capitalize rounded text-white bg-blue-600 uppercase last:mr-0 mr-1 mt-1">
+        Public Room
+      </span>
+    </div>
     <div v-if="isDisconnected" class="rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
       <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
         <span class="block text-white">You have been disconnected</span>
@@ -19,7 +29,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1 p-8 bg-gray-100 rounded-lg">
       <div class="">
         <video-window
           v-if="!isDisconnected"
@@ -165,8 +175,11 @@ export default {
   created(){
     this.initialize();
   },
-  unmounted(){
-    this.disconnect();
+  unmounted(){ console.log('unmount')
+    this.endCall();
+  },
+  deactivated(){ console.log('unmount')
+    this.endCall();
   },
   methods:{
     initialize(){
@@ -354,6 +367,7 @@ export default {
 
     endCall(){
       this.disconnect();
+      this.stopBothVideoAndAudio();
       this.socket = null;
       this.myPeer = null;
       this.myVideo = { stream: null };
@@ -409,6 +423,14 @@ export default {
       let seemsSafari = userAgent.indexOf("Safari") > -1;
       return seemsSafari && !seemsChrome;
     },
+
+    stopBothVideoAndAudio() {
+      this.myVideo.stream.getTracks().forEach(function(track) {
+          if (track.readyState == 'live') {
+              track.stop();
+          }
+      });
+    }
 
   }
 }

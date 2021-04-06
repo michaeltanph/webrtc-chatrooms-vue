@@ -6,7 +6,7 @@
       <div class="px-4 sm:px-6 xl:px-8 pt-10">
         <h1 class="text-5xl leading-none font-extrabold text-gray-900 tracking-tight mb-4">Hi, {{username}}</h1>
         <h1 class="text-5xl leading-none font-extrabold text-gray-900 tracking-tight mb-4">Welcome to the lobby.</h1>
-        <p class="text-2xl tracking-tight mb-4">Join among the chat rooms or create your own.</p>
+        <p class="text-2xl tracking-tight mb-4">Join a chat room or create your own</p>
       </div>
     </section>
 
