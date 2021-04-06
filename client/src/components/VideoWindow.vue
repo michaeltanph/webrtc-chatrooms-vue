@@ -9,7 +9,6 @@
     
     <div class="flex" v-if="!self">
       <h5 v-if="id" class="text-xs username flex-none flex items-center justify-center h-9 rounded px-3 text-gray-200 border bg-gray-700 border-gray-700">
-        <!-- {{id}} {{isMuted}} -->
         {{username}}
       </h5>
 
@@ -108,8 +107,6 @@ export default {
     },
     isMuted: function(){
       return !this.isStreamingAudio || !this.listenVoice;
-      //return !this.isStreamingAudio;
-      //return true
     }
   },
   data (){

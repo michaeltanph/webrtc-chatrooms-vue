@@ -10,13 +10,13 @@
           <div class="divide-y divide-gray-200">
             <div class="pb-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
               <p>This is a vue side project utilizing the power of WebRTC with Socket.io and PeerJs</p>
-              <p>Type in your username below and continue.</p>
+              <p>Type in your nickname below to continue.</p>
             </div>
             <div class="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
 
               <form @submit.prevent="login" class="mt-6">
                 <div class="sm:flex">
-                  <input v-model="username" type="text" required="" placeholder="BangusTheBoneless" class="block sm:max-w-xs w-full px-4 py-3 text-base appearance-none border border-gray-300 shadow-none bg-white rounded-md placeholder-gray-300 focus:outline-none focus:shadow-outline-blue focus:border-blue-300">
+                  <input v-model="username" type="text" required="" placeholder="JuanDu" class="block sm:max-w-xs w-full px-4 py-3 text-base appearance-none border border-gray-300 shadow-none bg-white rounded-md placeholder-gray-300 focus:outline-none focus:shadow-outline-blue focus:border-blue-300">
                   <button class="mt-4 relative sm:mt-0 sm:h-auto sm:ml-4 block w-full sm:w-auto border border-transparent px-6 py-3 text-base font-semibold leading-snug bg-gray-900 text-white rounded-md shadow-md hover:bg-gray-800 focus:outline-none focus:bg-gray-800 transition ease-in-out duration-150 hover:bg-gray-600" :class="{ 'opacity-50 pointer-events-none': isSubmitting, 'hover:bg-gray-600': !isSubmitting }" :disabled="isSubmitting">
                     <span>Continue</span>
                     <span style="" x-show="true" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0" :class="{ 'opacity-0': !isSubmitting }">
@@ -50,7 +50,7 @@ export default {
       isError: false,
       errorMessage: '',
       isSubmitting: false,
-      usernamePlaceholderList: ["Bangus", "Banana", "Orange", "Apple", "Mango", 'Chocolate', 'Leaf', 'Tropico', 'Marci', 'Discord', 'Hoodwink', 'BottleBarn', 'Cheech', 'Carabao'],
+      nicknameList: ['Bangus', 'Banana', 'Orange', 'Apple', 'Mango', 'Chocolate', 'Leaf', 'Tropico', 'Marci', 'Discord', 'Hoodwink', 'BottleBarn', 'Cheech', 'Carabao', 'Valheim', 'Tawas'],
       username: '',
     }
   },
@@ -64,8 +64,8 @@ export default {
         .then(() => this.$router.push({ path: "/lobby" }));
     },
     randomUsername(){
-      let max = this.usernamePlaceholderList.length;
-      this.username = this.usernamePlaceholderList[Math.floor(Math.random() * max)]
+      let max = this.nicknameList.length;
+      this.username = this.nicknameList[Math.floor(Math.random() * max)]
     }
   }
 

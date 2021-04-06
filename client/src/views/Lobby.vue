@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import http from "@/services/api.service.js";
+import http from "@/services/http.js";
 
 export default {
   name: 'Lobby',

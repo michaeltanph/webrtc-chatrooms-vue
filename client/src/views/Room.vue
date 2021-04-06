@@ -1,6 +1,6 @@
 <template>
   <div class="p-8">
-    <h1 class="text-base font-semibold uppercase mb-8">{{roomTitle}}</h1>
+    <h1 class="text-base font-semibold uppercase mb-8">{{!isDisconnected ? roomTitle : ''}}</h1>
     <div v-if="isDisconnected" class="rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
       <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
         <span class="block text-white">You have been disconnected</span>
@@ -12,7 +12,7 @@
           </button>
         </div>
         <div class="ml-3 inline-flex rounded-md shadow">
-          <button @click="initialize()" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-white hover:bg-blue-50">
+          <button @click="reconnect()" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-white hover:bg-blue-50">
             Reconnect
           </button>
         </div>
@@ -46,9 +46,9 @@
 
     <!-- TOOLBAR -->
     <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0 bg-gray-100 text-gray-700 dark:bg-gray-900">
-      <div class="grid grid-cols-4 md:grid-cols-12 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
+      <div class="grid grid-cols-4 lg:grid-cols-12 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
         
-        <button @click="toggleAudio" :disabled="isDisconnected" type="button" class="md:col-start-5 mx-auto py-4 px-4 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+        <button @click="toggleAudio" :disabled="isDisconnected" type="button" class="lg:col-start-5 mx-auto py-4 px-4 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
           <svg v-if="allowAudio" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"> 
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /> 
             <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
@@ -176,19 +176,18 @@ export default {
       this.assignSerialization();
       this.initPeer();
       this.listenOnEstablishedPeer();
-      this.setupUserMedia();
-    },
-    checkSafari() {
-      let seemsChrome = navigator.userAgent.indexOf("Chrome") > -1;
-      let seemsSafari = navigator.userAgent.indexOf("Safari") > -1;
-      return seemsSafari && !seemsChrome;
+      this.establishUserMedia();
     },
 
     initPeer(){
-      this.myPeer = new PeerService({peerId: this.myPeerId, serialization: this.serialization, metadata: { username: this.myUsername }});
+      this.myPeer = new PeerService({ 
+        peerId: this.myPeerId,
+        serialization: this.serialization,
+        metadata: { username: this.myUsername }
+      });
     },
 
-    setupUserMedia(){
+    establishUserMedia(){
       navigator.mediaDevices.getUserMedia({
         video: this.allowVideo,
         audio: this.allowAudio
@@ -214,7 +213,7 @@ export default {
     },
 
     listenOnEstablishedPeer(){
-      this.myPeer.on('open', id => { //console.log('peer open', this.myPeer)
+      this.myPeer.on('open', id => {
         this.myPeerId = id;
         this.isReadyMyPeer = true;
       })
@@ -223,7 +222,7 @@ export default {
     listenOnCall(){
       let userId;
       let username;
-      this.myPeer.on('call', call => { //console.log('Calling', call)
+      this.myPeer.on('call', call => {
         userId                = call.peer;
         username              = call.metadata.username;
         this.peerList[userId] = { userId: userId, video: {username: username}, call: call };
@@ -231,7 +230,7 @@ export default {
       })
     },
 
-    answerCall({userId, username}){ //console.log("Answering call . . .", userId)
+    answerCall({userId, username}){
       if(this.peerList[userId].call){
         this.peerList[userId].call.answer(this.myVideo.stream);
         this.peerList[userId].call.on('stream', userVideoStream => {
@@ -240,17 +239,17 @@ export default {
       }
     },
 
-    connectToNewUser({userId, username}, stream) { //console.log("Attempting to call . . .", userId)
+    connectToNewUser({userId, username}, stream) {
       const call                  = this.myPeer.call(userId, stream, { metadata: { username: this.myUsername } }); 
       this.peerList[userId]       = { userId: userId, video: {username: username} };
       this.peerList[userId].call  = call;
 
       if(call){ 
-        call.on('stream', userVideoStream => { //console.log("Call then stream now . . .", userId)
+        call.on('stream', userVideoStream => {
             this.streamVideo( { userId, username, userVideoStream } )
         })
 
-        call.on('close', () => { //console.log('he close')
+        call.on('close', () => {
           if (this.peerList[userId]){
             this.removePeer( userId );
             this.removeVideo( userId );     
@@ -269,11 +268,6 @@ export default {
     
     streamVideo( {userId, username, userVideoStream} ){
       let video = { isStreamingAudio: true, isStreamingVideo: true, stream: userVideoStream, userId: userId, username: username };
-      /* this.peerList[userId].video.isStreamingAudio  = true;  
-      this.peerList[userId].video.isStreamingVideo  = true;  
-      this.peerList[userId].video.userVideoStream   = userVideoStream;  
-      this.peerList[userId].video.userId            = userId;
-      this.peerList[userId].video.username          = username;   */
       this.peerList[userId].video          = video;
 
       if(this.isUserIdUnique(userId)){
@@ -327,25 +321,30 @@ export default {
     },
     listenToggleCamera(){
       this.socket.on("somebody-toggle-camera", ( {isUsingCamera, userId} ) => {
-        if (this.peerList[userId]){
-          this.peerList[userId].video.isStreamingVideo = isUsingCamera;
-        }
-        if (this.myPeerId == userId){
-          this.allowVideo = isUsingCamera;
-          this.myVideo.isStreamingVideo = isUsingCamera;
-        }
+        this.updatePeerMediaPermission(userId, "camera", isUsingCamera);
       })
     },
     listenToggleMicrophone(){
       this.socket.on("somebody-toggle-microphone", ( {isUsingMicrophone, userId} ) => {
-        if (this.peerList[userId]){
-          this.peerList[userId].video.isStreamingAudio = isUsingMicrophone;
-        }
-        if (this.myPeerId == userId){ console.log(true)
-          this.allowAudio = isUsingMicrophone;
-          this.myVideo.isStreamingAudio = isUsingMicrophone;
-        }
+        this.updatePeerMediaPermission(userId, "microphone", isUsingMicrophone);
       })
+    },
+
+    updatePeerMediaPermission(userId, device, value){
+      let permKey = "";
+
+      if (device == "microphone")
+        permKey = "isStreamingAudio";
+      else if ( device == "camera")
+        permKey = "isStreamingVideo";
+
+      if (this.peerList[userId]){
+        this.peerList[userId].video[permKey] = value;
+      }
+      if (this.myPeerId == userId){
+        this.allowAudio = value;
+        this.myVideo[permKey] = value;
+      }
     },
 
     disconnect(){
@@ -396,6 +395,19 @@ export default {
       this.myVideo.stream.getAudioTracks()[0].enabled = !this.allowAudio;
       this.socket.emit("set-self-audio", !this.allowAudio, this.myPeerId)
       this.allowAudio = !this.allowAudio;
+    },
+
+    reconnect(){
+      this.socket = new Socket();
+      this.initialize();
+      this.isDisconnected = false;
+    },
+
+    checkSafari() {
+      let userAgent   = navigator.userAgent;
+      let seemsChrome = userAgent.indexOf("Chrome") > -1;
+      let seemsSafari = userAgent.indexOf("Safari") > -1;
+      return seemsSafari && !seemsChrome;
     },
 
   }
