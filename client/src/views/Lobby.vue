@@ -36,7 +36,7 @@
 
       <ul class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
         <li v-for="room in rooms" :key="room.name">
-          <a href="#" @click="goTo(room)" class="hover:bg-blue-500 hover:border-transparent hover:shadow-lg group block rounded-lg p-4 border border-gray-200">
+          <div @click="goToRoomUrl(room)" class="cursor-pointer hover:bg-blue-500 hover:border-transparent hover:shadow-lg group block rounded-lg p-4 border border-gray-200">
             <dl class="grid sm:block lg:grid xl:block grid-cols-2 grid-rows-2 items-center">
               <div>
                 <dt class="sr-only">Title</dt>
@@ -57,7 +57,7 @@
                 </dd>
               </div>
             </dl>
-          </a>
+          </div>
         </li>
         <li class="hover:shadow-lg flex rounded-lg">
           <button @click="createRoom()" class="hover:border-transparent hover:shadow-xs w-full flex items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-sm font-medium py-4">
@@ -109,14 +109,13 @@
 
 <script>
 import http from "@/services/api.service.js";
-//import { Socket } from "@/services/socket.init.js";
+
 export default {
   name: 'Lobby',
   components: {
   },
   data(){
     return{
-      //socket: new Socket,
       loading: false,
       rooms: [],
       showModal: false,
@@ -135,9 +134,7 @@ export default {
         method: 'GET',
         params: {},
       }).then(response => {
-        this.rooms = this.parseResultsData(response);
-        //this.rooms = response.data;
-        console.log(this.rooms)
+        this.rooms = this.mapResultsData(response);
       }).catch(error => {
         throw new Error(error);
       }).finally(()=>{
@@ -145,9 +142,8 @@ export default {
       })
     },
 
-    async goTo(room){
-      await this.$store.dispatch("joinRoom", { name: room.name, title: room.title })
-      this.$router.push(room.url);
+    goToRoomUrl(room){ console.log(room, 'gotToURL')
+      this.$store.dispatch("joinRoom", { name: room.name, title: room.title, url: room.url })
     },
 
     addRoom(){
@@ -162,7 +158,7 @@ export default {
       this.showModal = !this.showModal;
     },
 
-    parseResultsData(response){
+    mapResultsData(response){
       let data = response.data;
       let roomNames =  Object.keys(data);
       let roomList = [];

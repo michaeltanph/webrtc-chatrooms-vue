@@ -49,18 +49,23 @@ export default {
     return{
       isError: false,
       errorMessage: '',
-      username: 'bangus',
       isSubmitting: false,
+      usernamePlaceholderList: ["Bangus", "Banana", "Orange", "Apple", "Mango", 'Chocolate', 'Leaf', 'Tropico', 'Marci', 'Discord', 'Hoodwink', 'BottleBarn', 'Cheech', 'Carabao'],
+      username: '',
     }
   },
   mounted(){
-    
+    this.randomUsername();
   },
   methods: {
     login(){
       this.$store
         .dispatch('logIn', this.username)
         .then(() => this.$router.push({ path: "/lobby" }));
+    },
+    randomUsername(){
+      let max = this.usernamePlaceholderList.length;
+      this.username = this.usernamePlaceholderList[Math.floor(Math.random() * max)]
     }
   }
 

@@ -1,7 +1,6 @@
 <template>
   <div class="p-8">
     <h1 class="text-base font-semibold uppercase mb-8">{{roomTitle}}</h1>
-    
     <div v-if="isDisconnected" class="rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
       <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
         <span class="block text-white">You have been disconnected</span>
@@ -29,7 +28,6 @@
           :isStreamingAudio="myVideo.isStreamingAudio" 
           :isStreamingVideo="myVideo.isStreamingVideo"
         />
-        <h6>{{myUsername}}</h6>
       </div>
     
       <div
@@ -39,10 +37,11 @@
         <video-window 
           :id="peerList[vid].video.userId"
           :stream="peerList[vid].video.stream"
+          :username="peerList[vid].video.username"
           :isStreamingAudio="peerList[vid].video.isStreamingAudio"
           :isStreamingVideo="peerList[vid].video.isStreamingVideo"
         />
-        <h6>{{peerList[vid].video.username}}</h6>
+        <!-- <h6>{{peerList[vid].video.username}}</h6> -->
       </div>
     </div>
 
@@ -126,17 +125,6 @@ export default {
       type: String,
     },
   },
-  // async beforeRouteEnter(to, from, next) {
-  //   if(this.$store.state.room.roomTitle){
-  //     return next()
-  //   }
-  //   else if(this.$store.state.room.roomTitle == ''){
-  //     this.$router.push('/lobby')
-  //   }
-  //   else{
-  //     this.$router.push('/lobby')
-  //   }
-  // },
   watch: {
     isReadyMyVideo: function(bool){
       if(bool){
@@ -195,14 +183,14 @@ export default {
     },
 
     initPeer(){
-      this.myPeer = new PeerService({peerId: this.myPeerId, serialization: this.serialization, username: this.myUsername});
+      this.myPeer = new PeerService({peerId: this.myPeerId, serialization: this.serialization, metadata: { username: this.myUsername }});
     },
 
     setupUserMedia(){
       navigator.mediaDevices.getUserMedia({
         video: this.allowVideo,
         audio: this.allowAudio
-      }).then(stream => {
+      }).then( stream => {
         const audioTracks = stream.getAudioTracks();
         const audioTrack = audioTracks[0] ? audioTracks[0] : null;
         if(audioTrack){
@@ -234,9 +222,10 @@ export default {
       let userId;
       let username;
       this.myPeer.on('call', call => { //console.log('Calling', call)
+        console.log(call)
         userId                = call.peer;
-        username              = "" //to be fixed
-        this.peerList[userId] = {userId: userId, video: {}, call: call};
+        username              = call.metadata.username;
+        this.peerList[userId] = { userId: userId, video: {}, call: call };
         this.answerCall({userId, username});
       })
     },
@@ -245,22 +234,22 @@ export default {
       if(this.peerList[userId].call){
         this.peerList[userId].call.answer(this.myVideo.stream);
         this.peerList[userId].call.on('stream', userVideoStream => {
-          this.streamVideo( {userId, username, userVideoStream} )
+          this.streamVideo( { userId, username, userVideoStream } )
         })
       }
     },
 
-    connectToNewUser({userId, username}, stream) { console.log("Attempting to call . . .", userId)
-      const call                  = this.myPeer.call(userId, stream); 
-      this.peerList[userId]       = {userId: userId, username: username, video: {}};
+    connectToNewUser({userId, username}, stream) { //console.log("Attempting to call . . .", userId)
+      const call                  = this.myPeer.call(userId, stream, { metadata: { username: username } }); 
+      this.peerList[userId]       = { userId: userId, username: username, video: {} };
       this.peerList[userId].call  = call;
 
       if(call){ 
-        call.on('stream', userVideoStream => {  console.log("Call then stream now . . .", userId)
-            this.streamVideo( {userId, userVideoStream} )
+        call.on('stream', userVideoStream => { //console.log("Call then stream now . . .", userId)
+            this.streamVideo( { userId, username, userVideoStream } )
         })
 
-        call.on('close', () => {
+        call.on('close', () => { console.log('he close')
           if (this.peerList[userId]){
             this.removePeer( userId );
             this.removeVideo( userId );     
@@ -280,7 +269,6 @@ export default {
     streamVideo( {userId, username, userVideoStream} ){
       let video = {isStreamingAudio: true, isStreamingVideo: true, stream: userVideoStream, userId: userId, username: username};
       this.peerList[userId].video = video;  
-      console.log(this.isUserIdUnique(userId))
       if(this.isUserIdUnique(userId)){
         this.appendVideoListItem( userId );
       }
@@ -307,18 +295,6 @@ export default {
       return found ? false : true;
     },
 
-    toggleVideo(){
-      this.myVideo.stream.getVideoTracks()[0].enabled = !this.allowVideo;
-      this.socket.emit("set-self-video", !this.allowVideo, this.myPeerId)
-      this.allowVideo = !this.allowVideo;
-    },
-
-    toggleAudio(){
-      this.myVideo.stream.getAudioTracks()[0].enabled = !this.allowAudio;
-      this.socket.emit("set-self-audio", !this.allowAudio, this.myPeerId)
-      this.allowAudio = !this.allowAudio;
-    },
-
     listenRoomAssignment(){
       this.socket.on("assign-room", (status, roomName) => {
         this.room = roomName ? roomName : this.room;
@@ -338,7 +314,7 @@ export default {
       })
     },
     listenConnectedUser(){
-      this.socket.on('user-connected', (userId, username) => { 
+      this.socket.on('user-connected', (userId, username) => {
         this.connectToNewUser({userId, username}, this.myVideo.stream)
       })
     },
@@ -347,7 +323,7 @@ export default {
         if (this.peerList[userId]){
           this.peerList[userId].video.isStreamingVideo = isUsingCamera;
         }
-        if (this.myPeerId == userId){ //console.log(true)
+        if (this.myPeerId == userId){
           this.allowVideo = isUsingCamera;
           this.myVideo.isStreamingVideo = isUsingCamera;
         }
@@ -401,8 +377,19 @@ export default {
       else{
         this.$router.push('/lobby')
       }
+    },
 
-    }
+    toggleVideo(){
+      this.myVideo.stream.getVideoTracks()[0].enabled = !this.allowVideo;
+      this.socket.emit("set-self-video", !this.allowVideo, this.myPeerId)
+      this.allowVideo = !this.allowVideo;
+    },
+
+    toggleAudio(){
+      this.myVideo.stream.getAudioTracks()[0].enabled = !this.allowAudio;
+      this.socket.emit("set-self-audio", !this.allowAudio, this.myPeerId)
+      this.allowAudio = !this.allowAudio;
+    },
 
   }
 }

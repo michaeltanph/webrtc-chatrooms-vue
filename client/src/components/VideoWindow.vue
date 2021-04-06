@@ -9,7 +9,8 @@
     
     <div class="flex" v-if="!self">
       <h5 v-if="id" class="text-xs username flex-none flex items-center justify-center h-9 rounded px-3 text-gray-200 border bg-gray-500 border-gray-500">
-        {{id}} {{isMuted}}
+        <!-- {{id}} {{isMuted}} -->
+        {{username}}
       </h5>
 
       <button
@@ -76,7 +77,7 @@ export default {
       default: '',
       type: String,
     },
-    userName: {
+    username: {
       default: '',
       type: String,
     },

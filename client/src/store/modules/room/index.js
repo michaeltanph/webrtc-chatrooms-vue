@@ -18,9 +18,10 @@ const actions = {
   clearRoomTitle({commit}){
     commit('SET_ROOM_TITLE', '')
   },
-  joinRoom({commit}, {name, title}){
+  joinRoom({commit}, {name, title, url}){
     commit('SET_ROOM_NAME', name)
     commit('SET_ROOM_TITLE', title)
+    router.push(url)
   }
 };
 
