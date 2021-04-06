@@ -7,14 +7,14 @@
       </h2>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
         <div class="inline-flex rounded-md shadow">
-          <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700">
+          <button @click="$router.push('/lobby')" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700">
             Back to lobby
-          </a>
+          </button>
         </div>
         <div class="ml-3 inline-flex rounded-md shadow">
-          <a href="#" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-white hover:bg-blue-50">
+          <button @click="initialize()" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-gray-900 bg-white hover:bg-blue-50">
             Reconnect
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -41,7 +41,6 @@
           :isStreamingAudio="peerList[vid].video.isStreamingAudio"
           :isStreamingVideo="peerList[vid].video.isStreamingVideo"
         />
-        <!-- <h6>{{peerList[vid].video.username}}</h6> -->
       </div>
     </div>
 
@@ -164,18 +163,21 @@ export default {
     },
   },
   created(){
-    this.checkRoomTitleFromStore();
-    this.listenSocket();
-    this.checkRoom();
-    this.assignSerialization();
-    this.initPeer();
-    this.listenOnEstablishedPeer();
-    this.setupUserMedia();
+    this.initialize();
   },
   unmounted(){
     this.disconnect();
   },
   methods:{
+    initialize(){
+      this.checkRoomTitleFromStore();
+      this.listenSocket();
+      this.checkRoom();
+      this.assignSerialization();
+      this.initPeer();
+      this.listenOnEstablishedPeer();
+      this.setupUserMedia();
+    },
     checkSafari() {
       let seemsChrome = navigator.userAgent.indexOf("Chrome") > -1;
       let seemsSafari = navigator.userAgent.indexOf("Safari") > -1;
@@ -222,10 +224,9 @@ export default {
       let userId;
       let username;
       this.myPeer.on('call', call => { //console.log('Calling', call)
-        console.log(call)
         userId                = call.peer;
         username              = call.metadata.username;
-        this.peerList[userId] = { userId: userId, video: {}, call: call };
+        this.peerList[userId] = { userId: userId, video: {username: username}, call: call };
         this.answerCall({userId, username});
       })
     },
@@ -240,8 +241,8 @@ export default {
     },
 
     connectToNewUser({userId, username}, stream) { //console.log("Attempting to call . . .", userId)
-      const call                  = this.myPeer.call(userId, stream, { metadata: { username: username } }); 
-      this.peerList[userId]       = { userId: userId, username: username, video: {} };
+      const call                  = this.myPeer.call(userId, stream, { metadata: { username: this.myUsername } }); 
+      this.peerList[userId]       = { userId: userId, video: {username: username} };
       this.peerList[userId].call  = call;
 
       if(call){ 
@@ -249,7 +250,7 @@ export default {
             this.streamVideo( { userId, username, userVideoStream } )
         })
 
-        call.on('close', () => { console.log('he close')
+        call.on('close', () => { //console.log('he close')
           if (this.peerList[userId]){
             this.removePeer( userId );
             this.removeVideo( userId );     
@@ -267,8 +268,14 @@ export default {
     },
     
     streamVideo( {userId, username, userVideoStream} ){
-      let video = {isStreamingAudio: true, isStreamingVideo: true, stream: userVideoStream, userId: userId, username: username};
-      this.peerList[userId].video = video;  
+      let video = { isStreamingAudio: true, isStreamingVideo: true, stream: userVideoStream, userId: userId, username: username };
+      /* this.peerList[userId].video.isStreamingAudio  = true;  
+      this.peerList[userId].video.isStreamingVideo  = true;  
+      this.peerList[userId].video.userVideoStream   = userVideoStream;  
+      this.peerList[userId].video.userId            = userId;
+      this.peerList[userId].video.username          = username;   */
+      this.peerList[userId].video          = video;
+
       if(this.isUserIdUnique(userId)){
         this.appendVideoListItem( userId );
       }

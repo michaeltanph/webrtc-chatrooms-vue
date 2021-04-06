@@ -20,8 +20,10 @@
             </svg>
             Create
           </button>
-          <button @click="getRooms()" class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-4 py-2 ml-2">
-            R
+          <button @click="getRooms()" class="hover:bg-blue-200 hover:text-blue-800 group flex items-center rounded-md bg-blue-100 text-blue-600 text-sm font-medium px-2 py-2 ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
           </button>
         </div>
       </header>
@@ -72,7 +74,7 @@
   <!-- MODAL -->
   <div v-show="showModal" class="modal h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50">
     <!-- modal -->
-    <div class="bg-white rounded shadow-lg w-1/3">
+    <div class="bg-white rounded shadow-lg sm:w-1/3 xs:1/2">
       <!-- modal header -->
       <div class="border-b px-4 py-2 flex justify-between items-center">
         <h3 class="font-semibold text-lg">Create Room</h3>
@@ -142,12 +144,17 @@ export default {
       })
     },
 
-    goToRoomUrl(room){ console.log(room, 'gotToURL')
+    goToRoomUrl(room){
       this.$store.dispatch("joinRoom", { name: room.name, title: room.title, url: room.url })
     },
 
     addRoom(){
-      this.$store.dispatch('createRoom', this.roomTitle);
+      if(!this.roomTitle)
+        throw new Error;
+      else if(this.roomTitle == '')
+        throw new Error;
+      else
+        this.$store.dispatch('createRoom', this.roomTitle);
     },
 
     createRoom(){
