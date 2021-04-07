@@ -149,12 +149,13 @@ export default {
     },
 
     addRoom(){
-      if(!this.roomTitle)
-        throw new Error;
-      else if(this.roomTitle == '')
-        throw new Error;
-      else
+      // if(!this.roomTitle)
+      //   throw new Error;
+      // else if(this.roomTitle == '')
+      //   throw new Error;
+      // else
         this.$store.dispatch('createRoom', this.roomTitle);
+        
     },
 
     createRoom(){

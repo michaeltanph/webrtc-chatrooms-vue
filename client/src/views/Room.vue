@@ -1,15 +1,17 @@
 <template>
-  <div class="p-8">
-    <div class="mb-8">
-      <button @click="$router.push('/lobby')" class="mr-4 inline-block align-middle lg:col-start-5 mx-auto py-3 px-3 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-      </button>
-      <span class="inline-block align-middle text-base text-2xl font-bold capitalize mr-4">{{!isDisconnected ? roomTitle : ''}}</span>
-      <span class="inline-block align-middle text-xs font-semibold inline-block py-1 px-2 capitalize rounded text-white bg-blue-600 uppercase last:mr-0 mr-1 mt-1">
-        Public Room
-      </span>
+  <div class="p-8"> v:{{isReadyMyVideo}} p:{{isReadyMyPeer}}
+    <div v-if="!isDisconnected">
+      <div class="mb-8">
+        <button @click="$router.push('/lobby')" class="mr-4 inline-block align-middle lg:col-start-5 mx-auto py-3 px-3 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <span class="inline-block align-middle text-base text-2xl font-bold capitalize mr-4">{{roomTitle}}</span>
+        <span class="inline-block align-middle text-xs font-semibold inline-block py-1 px-2 capitalize rounded text-white bg-blue-600 uppercase last:mr-0 mr-1 mt-1">
+          Public Room
+        </span>
+      </div>
     </div>
     <div v-if="isDisconnected" class="rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
       <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -28,11 +30,11 @@
         </div>
       </div>
     </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1 p-8 bg-gray-100 rounded-lg">
+    
+    <div v-show="!isDisconnected" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1 p-8 bg-gray-100 rounded-xl">
       <div class="">
         <video-window
-          v-if="!isDisconnected"
+          v-show="!isDisconnected"
           :self="true"
           :stream="myVideo.stream"
           :isStreamingAudio="myVideo.isStreamingAudio" 
@@ -58,7 +60,7 @@
     <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0 bg-gray-100 text-gray-700 dark:bg-gray-900">
       <div class="grid grid-cols-4 lg:grid-cols-12 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
         
-        <button @click="toggleAudio" :disabled="isDisconnected" type="button" class="lg:col-start-5 mx-auto py-4 px-4 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+        <button @click="toggleAudio" :disabled="isDisconnected" type="button" :class="allowAudio ? 'bg-transparent text-gray-700 hover:bg-gray-100 border-gray-300 ' : 'bg-gray-500 text-gray-100 hover:bg-gray-600 border-gray-400 '" class="mx-auto py-3 px-3  font-semibold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
           <svg v-if="allowAudio" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"> 
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /> 
             <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
@@ -68,11 +70,11 @@
           </svg>
         </button>
         
-        <button :disabled="isDisconnected" @click="endCall()" type="button" class="col-span-2 w-full mx-auto py-4 px-6 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">
+        <button :disabled="isDisconnected" @click="endCall()" type="button" class="col-span-2 w-full mx-auto py-3 px-4 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">
           End Call
         </button>
         
-        <button @click="toggleVideo" :disabled="isDisconnected" type="button" class="mx-auto py-4 px-4 bg-transparentt-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+        <button @click="toggleVideo" :disabled="isDisconnected" type="button" :class="allowVideo ? 'bg-transparent text-gray-700 hover:bg-gray-100 border-gray-300 ' : 'bg-gray-500 text-gray-100 hover:bg-gray-600 border-gray-400 '" class="mx-auto py-3 px-3  font-semibold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
           <svg v-if="allowVideo" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
             <polygon points="23 7 16 12 23 17 23 7" />  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
@@ -89,6 +91,7 @@
 <script>
 import { Socket } from "@/services/socket.init.js";
 import { PeerService } from "@/services/peer.init.js";
+import { mapMutations } from 'vuex';
 
 import videoWindow from "@/components/VideoWindow.vue";
 
@@ -115,7 +118,7 @@ export default {
       roomTitle: this.$store.state.room.roomTitle,
       myVideo: {stream: null},
       myPeer: null,
-      myPeerId: undefined,
+      myPeerId: undefined, //Initial must be undefined
       myCall: null,
       isReadyMyVideo: false,
       isReadyMyPeer: false,
@@ -175,15 +178,20 @@ export default {
   created(){
     this.initialize();
   },
-  unmounted(){ console.log('unmount')
+  unmounted(){
     this.endCall();
   },
-  deactivated(){ console.log('unmount')
+  deactivated(){
     this.endCall();
   },
   methods:{
+    ...mapMutations({
+      setRoomTitle: 'SET_ROOM_TITLE'
+    }),
+    
     initialize(){
-      this.checkRoomTitleFromStore();
+      this.isDisconnected = false;
+      //this.checkRoomTitleFromStore();
       this.listenSocket();
       this.checkRoom();
       this.assignSerialization();
@@ -243,6 +251,42 @@ export default {
       })
     },
 
+    listenRoomAssignment(){
+      this.socket.on("assign-room", (status, roomName) => {
+        this.room = roomName ? roomName : this.room;
+        if(!status){
+          this.$router.push(`/room/${this.room}`)
+          this.socket.on("set-room-title", (title)=>{
+            this.setRoomTitle(title);
+            this.roomTitle = this.$store.state.room.roomTitle;
+          })
+        }
+      })
+    },
+    listenDisconnectedUser(){
+      this.socket.on('user-disconnected', userId => {
+        if (this.peerList[userId]){
+          this.removePeer( userId );
+          this.removeVideoListItem( userId );      
+        }
+      })
+    },
+    listenConnectedUser(){
+      this.socket.on('user-connected', (userId, username) => {
+        this.connectToNewUser({userId, username}, this.myVideo.stream)
+      })
+    },
+    listenToggleCamera(){
+      this.socket.on("somebody-toggle-camera", ( {isUsingCamera, userId} ) => {
+        this.updatePeerMediaPermission(userId, "camera", isUsingCamera);
+      })
+    },
+    listenToggleMicrophone(){
+      this.socket.on("somebody-toggle-microphone", ( {isUsingMicrophone, userId} ) => {
+        this.updatePeerMediaPermission(userId, "microphone", isUsingMicrophone);
+      })
+    },
+
     answerCall({userId, username}){
       if(this.peerList[userId].call){
         this.peerList[userId].call.answer(this.myVideo.stream);
@@ -265,7 +309,7 @@ export default {
         call.on('close', () => {
           if (this.peerList[userId]){
             this.removePeer( userId );
-            this.removeVideo( userId );     
+            this.removeVideoListItem( userId );     
           }
         })
       }
@@ -297,7 +341,7 @@ export default {
       delete this.peerList[userId];
     },
 
-    removeVideo( userId ){
+    removeVideoListItem( userId ){
       let index = this.videoList.findIndex(item => {return item == userId;})
       this.videoList.splice(index, 1);
     },
@@ -309,54 +353,20 @@ export default {
       return found ? false : true;
     },
 
-    listenRoomAssignment(){
-      this.socket.on("assign-room", (status, roomName) => {
-        this.room = roomName ? roomName : this.room;
-        if(!status){
-          this.$router.push(`/room/${this.room}`)
-          let roomPayload = { name: this.room, title: this.roomTitle };
-          this.socket.emit("set-room-details", roomPayload)
-        }
-      })
-    },
-    listenDisconnectedUser(){
-      this.socket.on('user-disconnected', userId => {
-        if (this.peerList[userId]){
-          this.removePeer( userId );
-          this.removeVideo( userId );      
-        }
-      })
-    },
-    listenConnectedUser(){
-      this.socket.on('user-connected', (userId, username) => {
-        this.connectToNewUser({userId, username}, this.myVideo.stream)
-      })
-    },
-    listenToggleCamera(){
-      this.socket.on("somebody-toggle-camera", ( {isUsingCamera, userId} ) => {
-        this.updatePeerMediaPermission(userId, "camera", isUsingCamera);
-      })
-    },
-    listenToggleMicrophone(){
-      this.socket.on("somebody-toggle-microphone", ( {isUsingMicrophone, userId} ) => {
-        this.updatePeerMediaPermission(userId, "microphone", isUsingMicrophone);
-      })
-    },
-
     updatePeerMediaPermission(userId, device, value){
-      let permKey = "";
+      let streamMedia = "";
 
       if (device == "microphone")
-        permKey = "isStreamingAudio";
+        streamMedia = "isStreamingAudio";
       else if ( device == "camera")
-        permKey = "isStreamingVideo";
+        streamMedia = "isStreamingVideo";
 
       if (this.peerList[userId]){
-        this.peerList[userId].video[permKey] = value;
+        this.peerList[userId].video[streamMedia] = value;
       }
       if (this.myPeerId == userId){
         this.allowAudio = value;
-        this.myVideo[permKey] = value;
+        this.myVideo[streamMedia] = value;
       }
     },
 
@@ -366,26 +376,30 @@ export default {
     },
 
     endCall(){
-      this.disconnect();
-      this.stopBothVideoAndAudio();
-      this.socket = null;
-      this.myPeer = null;
-      this.myVideo = { stream: null };
-      this.isDisconnected = true;
-      this.isReadyMyVideo = false;
-      this.isReadyMyPeer = false;
-      this.peerList = {};
-      this.videoList = [];
+      if(this.isDisconnected === false){
+        this.isDisconnected = true;
+        this.disconnect();
+        this.stopVideoTracks();
+        this.socket = null;
+        this.myPeer = null;
+        this.myPeerId = undefined;
+        this.myCall = null;
+        this.myVideo = { stream: null };
+        this.isReadyMyVideo = false;
+        this.isReadyMyPeer = false;
+        this.peerList = {};
+        this.videoList = [];
+      }
     },
 
-    stopStreamedVideo(videoElem) {
+    /* stopStreamedVideo(videoElem) {
       const stream = videoElem.srcObject;
       const tracks = stream.getTracks();
       tracks.forEach(function(track) {
         track.stop();
       });
       videoElem.srcObject = null;
-    },
+    }, */
 
     checkRoomTitleFromStore(){
       if(this.$store.state.room.roomTitle){
@@ -411,10 +425,19 @@ export default {
       this.allowAudio = !this.allowAudio;
     },
 
-    reconnect(){
-      this.socket = new Socket();
+    async reconnect(){
+      this.socket = await new Socket;
+      this.socket.connect();
       this.initialize();
-      this.isDisconnected = false;
+      
+    },
+
+    stopVideoTracks() {
+      this.myVideo.stream.getTracks().forEach(function(track) {
+          if (track.readyState == 'live') {
+              track.stop();
+          }
+      });
     },
 
     checkSafari() {
@@ -423,14 +446,6 @@ export default {
       let seemsSafari = userAgent.indexOf("Safari") > -1;
       return seemsSafari && !seemsChrome;
     },
-
-    stopBothVideoAndAudio() {
-      this.myVideo.stream.getTracks().forEach(function(track) {
-          if (track.readyState == 'live') {
-              track.stop();
-          }
-      });
-    }
 
   }
 }
