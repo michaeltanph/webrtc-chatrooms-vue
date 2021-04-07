@@ -106,13 +106,14 @@ export default {
         return '300px';
     },
     isMuted: function(){
-      return !this.isStreamingAudio || !this.listenVoice;
+      return !this.isStreamingAudio || !this.listenVoice || this.selfMute;
     }
   },
   data (){
     return {
       show: false,
       listenVoice: true,
+      selfMute: false,
     }
   },
   watch:{
@@ -133,6 +134,9 @@ export default {
     setTimeout(() => {
       this.addVideoStream(this.stream);
     }, 2000);
+    if(this.self){
+      this.selfMute = true;
+    }
   },
   unmounted(){
 

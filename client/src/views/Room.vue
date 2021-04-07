@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8"> v:{{isReadyMyVideo}} p:{{isReadyMyPeer}}
+  <div class="p-8">
     <div v-if="!isDisconnected">
       <div class="mb-8">
         <button @click="$router.push('/lobby')" class="mr-4 inline-block align-middle lg:col-start-5 mx-auto py-3 px-3 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
@@ -31,7 +31,7 @@
       </div>
     </div>
     
-    <div v-show="!isDisconnected" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-1 p-8 bg-gray-100 rounded-xl">
+    <div v-show="!isDisconnected" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 p-8 bg-gray-100 rounded-xl">
       <div class="">
         <video-window
           v-show="!isDisconnected"
@@ -58,9 +58,9 @@
 
     <!-- TOOLBAR -->
     <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0 bg-gray-100 text-gray-700 dark:bg-gray-900">
-      <div class="grid grid-cols-4 lg:grid-cols-12 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
+      <div class="grid grid-cols-4 lg:grid-cols-8 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
         
-        <button @click="toggleAudio" :disabled="isDisconnected" type="button" :class="allowAudio ? 'bg-transparent text-gray-700 hover:bg-gray-100 border-gray-300 ' : 'bg-gray-500 text-gray-100 hover:bg-gray-600 border-gray-400 '" class="mx-auto py-3 px-3  font-semibold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+        <button @click="toggleAudio" :disabled="isDisconnected" type="button" :class="allowAudio ? 'bg-transparent text-gray-700 hover:bg-gray-100 border-gray-300 ' : 'bg-gray-500 text-gray-100 hover:bg-gray-600 border-gray-400 '" class="mx-auto py-3 px-3  font-semibold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 lg:col-start-3">
           <svg v-if="allowAudio" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"> 
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /> 
             <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
