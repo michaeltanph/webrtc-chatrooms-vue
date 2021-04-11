@@ -274,7 +274,7 @@ export default {
         console.log('disconnected:',userId, username)
         if (this.peerList[userId]){
           this.removePeer( userId );
-          this.removeVideoListItem( userId );      
+          //this.removeVideoListItem( userId );      
         }
       })
     },
@@ -316,7 +316,7 @@ export default {
         call.on('close', () => {
           if (this.peerList[userId]){
             this.removePeer( userId );
-            this.removeVideoListItem( userId );     
+            //this.removeVideoListItem( userId );     
           }
         })
       }
@@ -337,20 +337,23 @@ export default {
       if(this.isUserIdUnique(userId)){
         this.appendVideoListItem( userId );
       }
+    },    
+
+    removePeer( userId ){
+      this.removeVideoListItem( userId );
+      this.peerList[userId].call.close()
+      delete this.peerList[userId];
     },
 
     appendVideoListItem( userId ){
       this.videoList.push(userId);
     },
 
-    removePeer( userId ){
-      this.peerList[userId].call.close()
-      delete this.peerList[userId];
-    },
-
     removeVideoListItem( userId ){
-      let index = this.videoList.findIndex(item => {return item == userId;})
-      this.videoList.splice(index, 1);
+      let index = this.videoList.findIndex(id => {return id == userId;})
+      if(index > -1){
+        this.videoList.splice(index, 1);
+      }
     },
 
     isUserIdUnique(userId){
@@ -394,8 +397,8 @@ export default {
         this.myVideo        = { stream: null };
         this.isReadyMyVideo = false;
         this.isReadyMyPeer  = false;
-        //this.peerList     = {};
-        //this.videoList    = [];
+        this.peerList     = {};
+        this.videoList    = [];
       }
     },
 

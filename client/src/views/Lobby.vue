@@ -80,15 +80,17 @@
   </div>
 
   <base-modal title="Create Room" :visible="showModal" @update="v=>{showModal = v;}">
-    <form class="relative flex flex-items items-center gap-4">
-      <label for="roomTitle" class="mb-4">Title</label>
-      <input
-        required
-        v-model="roomTitle"
-        class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 px-2"
-        type="text"
-        aria-label="Room Name"
-        placeholder="Name" />
+    <form class="relative ">
+      <base-input-group class="flex flex-items items-center gap-4">
+        <label for="roomTitle" class="">Title</label>
+        <input
+          required
+          v-model="roomTitle"
+          class="focus:border-light-blue-500 focus:ring-1 focus:ring-light-blue-500 focus:outline-none w-full text-sm text-black placeholder-gray-500 border border-gray-200 rounded-md py-2 px-2"
+          type="text"
+          aria-label="Room Name"
+          placeholder="Name" />
+      </base-input-group>
     </form>
     
     <template v-slot:actions>
@@ -106,12 +108,14 @@ import http from "@/services/http.js";
 
 import BaseModal from "@/components/BaseModal";
 import BaseButton from "@/components/BaseButton";
+import BaseInputGroup from "@/components/BaseInputGroup";
 
 export default {
   name: 'Lobby',
   components: {
     BaseModal,
     BaseButton,
+    BaseInputGroup,
   },
   data(){
     return{

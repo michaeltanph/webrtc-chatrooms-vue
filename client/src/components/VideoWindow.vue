@@ -102,7 +102,7 @@ export default {
       if(!this.self)
         return '300px';
       else
-        //return '200px';
+        //return '200px'; 
         return '300px';
     },
     isMuted: function(){
