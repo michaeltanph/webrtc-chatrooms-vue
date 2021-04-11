@@ -1,14 +1,15 @@
 <template>
   <div class="p-8">
     <div v-if="!isDisconnected">
-      <div class="mb-8">
-        <button @click="$router.push('/lobby')" class="mr-4 inline-block align-middle lg:col-start-5 mx-auto py-3 px-3 bg-transparent text-dark font-semibold rounded-lg border-2 border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="mb-8 flex flex-wrap items-center justify-items-center">
+        
+        <base-button @click="$router.push('/lobby')" color="gray" size="lg" class="w-auto mr-4" outline icon>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
-        </button>
-        <span class="inline-block align-middle text-base text-2xl font-bold capitalize mr-4">{{roomTitle}}</span>
-        <span class="inline-block align-middle text-xs font-semibold inline-block py-1 px-2 capitalize rounded text-white bg-blue-600 uppercase last:mr-0 mr-1 mt-1">
+        </base-button>
+        <span class="text-base text-2xl font-bold capitalize mr-4">{{roomTitle}}</span>
+        <span class="text-xs font-semibold py-1 px-2 capitalize rounded text-white bg-blue-600 uppercase last:mr-0 mr-1 mt-1">
           Public Room
         </span>
       </div>
@@ -18,7 +19,8 @@
         <span class="block text-white">You have been disconnected</span>
       </h2>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <div class="inline-flex rounded-md shadow">
+        
+        <div class="inline-flex rounded-md shadow">  
           <button @click="$router.push('/lobby')" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700">
             Back to lobby
           </button>
@@ -57,31 +59,33 @@
     </div>
 
     <!-- TOOLBAR -->
-    <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0 bg-gray-100 text-gray-700 dark:bg-gray-900">
-      <div class="grid grid-cols-4 lg:grid-cols-8 items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 lg:px-1 xl:px-3 ">
+    <div v-if="!isDisconnected" class="fixed w-full left-0 bottom-0 bg-gray-100 dark:bg-gray-900">
+      <div class="flex justify-center items-center dark:text-white lg:rounded-b-xl py-4 px-1 sm:px-3 md:px-1 xl:px-3 ">
         
-        <button @click="toggleAudio" :disabled="isDisconnected" type="button" :class="allowAudio ? 'bg-transparent text-gray-700 hover:bg-gray-100 border-gray-300 ' : 'bg-gray-500 text-gray-100 hover:bg-gray-600 border-gray-400 '" class="mx-auto py-3 px-3  font-semibold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 lg:col-start-3">
-          <svg v-if="allowAudio" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"> 
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /> 
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
-          </svg>
-          <svg v-else height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
-            <line x1="1" y1="1" x2="23" y2="23" />  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
-          </svg>
-        </button>
-        
-        <button :disabled="isDisconnected" @click="endCall()" type="button" class="col-span-2 w-full mx-auto py-3 px-4 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75">
-          End Call
-        </button>
-        
-        <button @click="toggleVideo" :disabled="isDisconnected" type="button" :class="allowVideo ? 'bg-transparent text-gray-700 hover:bg-gray-100 border-gray-300 ' : 'bg-gray-500 text-gray-100 hover:bg-gray-600 border-gray-400 '" class="mx-auto py-3 px-3  font-semibold rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
-          <svg v-if="allowVideo" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
-            <polygon points="23 7 16 12 23 17 23 7" />  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-          </svg>
-          <svg v-else height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
-            <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />  <line x1="1" y1="1" x2="23" y2="23" />
-          </svg>
-        </button>
+        <div class="flex flex-wrap content-evenly justify-center items-center xs:w-full md:w-1/2 lg:w-1/3">
+          <base-button @click="toggleAudio" :disabled="isDisconnected" color="gray" size="lg" class="w-auto" :outline="allowAudio" icon>
+            <svg v-if="allowAudio" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"> 
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /> 
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+            <svg v-else height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
+              <line x1="1" y1="1" x2="23" y2="23" />  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />  <line x1="12" y1="19" x2="12" y2="23" />  <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </base-button>
+
+          <base-button @click="endCall" :disabled="isDisconnected" color="red" size="lg" class="flex-1 mx-4">
+            End Call
+          </base-button>
+
+          <base-button @click="toggleVideo" :disabled="isDisconnected" color="gray" size="lg" class="" :outline="allowVideo" icon>
+            <svg v-if="allowVideo" height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7" />  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
+            <svg v-else height="20" width="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">
+              <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />  <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </base-button>
+        </div>
         
       </div>
     </div>
@@ -93,7 +97,8 @@ import { Socket } from "@/services/socket.init.js";
 import { PeerService } from "@/services/peer.init.js";
 import { mapMutations } from 'vuex';
 
-import videoWindow from "@/components/VideoWindow.vue";
+import BaseButton from "@/components/BaseButton";
+import VideoWindow from "@/components/VideoWindow.vue";
 
 const constraints = {
   audio: {
@@ -109,7 +114,8 @@ const constraints = {
 export default {
   name: 'Room',
   components: {
-    videoWindow 
+    VideoWindow,
+    BaseButton,
   },
   data(){
     return{
@@ -264,7 +270,8 @@ export default {
       })
     },
     listenDisconnectedUser(){
-      this.socket.on('user-disconnected', userId => {
+      this.socket.on('user-disconnected', (userId, username) => {
+        console.log('disconnected:',userId, username)
         if (this.peerList[userId]){
           this.removePeer( userId );
           this.removeVideoListItem( userId );      
@@ -380,26 +387,17 @@ export default {
         this.isDisconnected = true;
         this.disconnect();
         this.stopVideoTracks();
-        this.socket = null;
-        this.myPeer = null;
-        this.myPeerId = undefined;
-        this.myCall = null;
-        this.myVideo = { stream: null };
+        this.socket         = null;
+        this.myPeer         = null;
+        this.myPeerId       = undefined;
+        this.myCall         = null;
+        this.myVideo        = { stream: null };
         this.isReadyMyVideo = false;
-        this.isReadyMyPeer = false;
-        this.peerList = {};
-        this.videoList = [];
+        this.isReadyMyPeer  = false;
+        //this.peerList     = {};
+        //this.videoList    = [];
       }
     },
-
-    /* stopStreamedVideo(videoElem) {
-      const stream = videoElem.srcObject;
-      const tracks = stream.getTracks();
-      tracks.forEach(function(track) {
-        track.stop();
-      });
-      videoElem.srcObject = null;
-    }, */
 
     checkRoomTitleFromStore(){
       if(this.$store.state.room.roomTitle){
@@ -429,7 +427,6 @@ export default {
       this.socket = await new Socket;
       this.socket.connect();
       this.initialize();
-      
     },
 
     stopVideoTracks() {

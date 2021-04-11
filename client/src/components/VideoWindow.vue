@@ -133,7 +133,7 @@ export default {
   mounted(){
     setTimeout(() => {
       this.addVideoStream(this.stream);
-    }, 2000);
+    }, 1000);
     if(this.self){
       this.selfMute = true;
     }
