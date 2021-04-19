@@ -1,5 +1,5 @@
 import Peer from 'peerjs';
-import { STUN_SERVERS } from "../common/config";
+import { ICE_SERVERS } from "../common/config";
 
 export class PeerService {
 
@@ -9,12 +9,12 @@ export class PeerService {
 
     init ({ peerId, serialization, metadata }){
         this.peer = new Peer(peerId, {
-            host: '/', port: 3001,
+            host: '/',
+            port: 3001,
             serialization: serialization,
             metadata: metadata,
-            config: {
-                STUN_SERVERS
-            }
+            debug: 3,
+            config: ICE_SERVERS,
         });
 
         return this.peer

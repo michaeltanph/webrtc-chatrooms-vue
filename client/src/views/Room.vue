@@ -1,6 +1,6 @@
 <template>
   <div class="p-8">
-    <div v-if="!isDisconnected">
+    <div v-if="!isDisconnected" class="pb-8">
       <div class="mb-8 flex flex-wrap items-center justify-items-center">
         
         <base-button @click="$router.push('/lobby')" color="gray" size="lg" class="w-auto mr-4" outline icon>
@@ -325,6 +325,7 @@ export default {
     assignSerialization(){
       this.serialization = this.checkSafari() ? 'json' : 'binary';
     },
+
 
     checkRoom(){
       this.socket.emit('check-room', this.room);

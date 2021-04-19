@@ -14,7 +14,7 @@
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <slot></slot> 
           </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 flex flex-row-reverse">
             <slot name="actions"></slot>
           </div>
         </div>

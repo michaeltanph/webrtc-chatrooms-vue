@@ -2,22 +2,20 @@
   <div class="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
     <div class="relative py-3 sm:max-w-xl sm:mx-auto">
       
-      <!-- <div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div> -->
-
       <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
         <div class="max-w-md mx-auto">
-          <h1 class="text-3xl pb-4 font-bold">KingCarabao WebChat</h1>
+          <h1 class="text-3xl pb-4 font-bold">Palpak! WebChat</h1>
           <div class="divide-y divide-gray-200">
             <div class="pb-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-              <p>This project is built using VueJs, WebRTC, Socket.io and PeerJs</p>
+              <p>This project is built using VueJs, Tailwind CSS, WebRTC, Socket.io and PeerJs</p>
               <p>Type in your nickname below to proceed.</p>
             </div>
             <div class="pt-6 text-base leading-6 font-bold sm:text-lg sm:leading-7">
 
               <form @submit.prevent="login" class="mt-6">
-                <div class="sm:flex">
+                <div class="flex">
                   <input v-model="username" type="text" required="" placeholder="JuanDu" class="block sm:max-w-xs w-full px-4 py-3 text-base appearance-none border border-gray-300 shadow-none bg-white rounded-md placeholder-gray-300 focus:outline-none focus:shadow-outline-blue focus:border-blue-300">
-                  <base-button color="blue" size="md" class="ml-4 py-6"
+                  <base-button color="blue" size="md" class="xs:max-w-xs ml-4 py-6"
                     :disabled="isSubmitting">
                     Continue
                     <span style="" x-show="true" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0" :class="{ 'opacity-0': !isSubmitting }">
